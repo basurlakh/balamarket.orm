@@ -55,7 +55,7 @@ abstract class IblockPropSimple extends DataManager
 
             $arProperties = $vars["arProperties"];
         }
-        elseif ($obCache->StartDataCache() && \Bitrix\Main\Loader::includeModule("iblock"))
+        elseif (\Bitrix\Main\Loader::includeModule("iblock") && $obCache->StartDataCache())
         {
             $arFilter = array(
                 "IBLOCK_ID" => static::getIblockId(),
