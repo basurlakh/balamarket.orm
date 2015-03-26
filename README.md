@@ -11,6 +11,7 @@
                 news.php - Класс инфоблока
                 newspropsimple.php - Класс свойств инфоблока
                 newspropmultiple.php - Класс множественных свойств инфоблока
+                newssection.php - Класс разделов инфоблока
 
 Для того, чтоб классы могли знать друг о друге используется правило наименования:
     
@@ -18,7 +19,7 @@
     <Сущьность>PropSimpleTable
     <Сущьность>PropMultipleTable
 
-Все 3 класса обязательно должны лежать в одном `namespace`.
+Все 4 класса обязательно должны лежать в одном `namespace`.
 
 ### Класс `NewsTable` инфоблока наследуем от `Balamarket\Orm\Entity\IblockElement`
 
@@ -68,9 +69,40 @@
             return NewsTable::getIblockId();
         }
     }
+
+### Класс `NewsSectionTable` разделов инфоблока наследуем от `Balamarket\Orm\Entity\IblockSectionTable`
+
+    <?php
+    namespace <ваш модуль>\Content;
+    use Bitrix\Main\Loader;
     
+    Loader::includeModule("balamarket.orm");
+
+    class NewsSectionTable extends \Balamarket\Orm\Entity\IblockSectionTable
+    {
+        public static function getIblockId()
+        {
+            return NewsTable::getIblockId();
+        }
+    }
+
+
 ## Выборка
 Во время выборки можно использовать все поля указанные в методе `getMap()`
+
+### Доступны специальные поля в `getMap()`:
+#### `\Balamarket\Orm\Entity\IblockElement`
+
+    DETAIL_PAGE_URL - формируется из настроек инфоблока
+
+#### `\Balamarket\Orm\Entity\IblockPropSimple`
+
+    IBLOCK_ELEMENT - Доступ к \Balamarket\Orm\Entity\IblockElement
+
+#### `\Balamarket\Orm\Entity\IblockSectionTable`
+
+    DETAIL_PAGE_URL - формируется из настроек инфоблока
+
 Для доступа к свойствам используются резервированные названия полей:
 
     PROPERTY_SIMPLE.<символьный код свойства>
