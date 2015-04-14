@@ -42,6 +42,9 @@ class IblockPropMultiple extends DataManager
             "VALUE" => array(
                 "data_type" => "string"
             ),
+            "DESCRIPTION" => array(
+                "data_type" => "string"
+            ),
             "VALUE_NUM" => array(
                 "data_type" => "float"
             )

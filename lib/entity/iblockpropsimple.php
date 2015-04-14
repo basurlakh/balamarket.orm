@@ -71,6 +71,7 @@ abstract class IblockPropSimple extends DataManager
                 {
                     continue;
                 }
+
                 $arColumn = array(
                     "expression" => array(
                         "%s",
@@ -96,9 +97,16 @@ abstract class IblockPropSimple extends DataManager
                     case 'N':
                         $arColumn["data_type"] = "float";
                         break;
-
+                    case 'S':
                     default:
                         $arColumn["data_type"] = "string";
+
+                        if ($arProperty["USER_TYPE"] == "HTML")
+                        {
+                            $arColumn["data_type"] = "text";
+                            $arColumn["serialized"] = true;
+                        }
+
                         break;
                 }
 
@@ -110,6 +118,7 @@ abstract class IblockPropSimple extends DataManager
 
             $obCache->EndDataCache(array("arProperties" => $arProperties));
         }
+
         return $arProperties;
     }
 }
