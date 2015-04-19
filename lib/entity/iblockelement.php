@@ -52,7 +52,7 @@ abstract class IblockElement extends DataManager
                 'data_type' => 'integer'
             ),
             'IBLOCK' => array(
-                'data_type' => 'Iblock',
+                'data_type' => '\Bitrix\Iblock\Iblock',
                 'reference' => array('=this.IBLOCK_ID' => 'ref.ID')
             ),
             "TIMESTAMP_X" => array(
@@ -63,7 +63,7 @@ abstract class IblockElement extends DataManager
             ),
             'ACTIVE' => array(
                 'data_type' => 'boolean',
-                'values' => array('N','Y')
+                'values' => array('N', 'Y')
             ),
             "ACTIVE_FROM" => array(
                 "data_type" => "datetime"
@@ -106,10 +106,11 @@ abstract class IblockElement extends DataManager
             )
         );
 
-        if(class_exists(str_replace("table", "", strtolower(get_called_class())) . "PropSimpleTable"))
+        $propertySimpleClassName = str_replace("table", "", strtolower(get_called_class())) . "PropSimpleTable";
+        if (class_exists($propertySimpleClassName))
         {
             $arMap["PROPERTY_SIMPLE"] = array(
-                "data_type" => str_replace("table", "", strtolower(get_called_class())) . "PropSimpleTable",
+                "data_type" => $propertySimpleClassName,
                 "reference" => array(
                     "=this.ID" => "ref.IBLOCK_ELEMENT_ID"
                 )
@@ -118,17 +119,18 @@ abstract class IblockElement extends DataManager
 
         $arMap = array_merge($arMap, static::getPropertyMultipleMap());
         $arMap = array_merge($arMap, static::getUrlTemplateMap($arMap));
+
         return $arMap;
     }
 
     protected static function getPropertyMultipleMap()
     {
         $arProperties = array();
-        $classPropertyMultipleName = str_replace("table", "", strtolower(get_called_class())) . "PropMultipleTable";
-        if (class_exists($classPropertyMultipleName))
+        $propertyMultipleClassName = str_replace("table", "", strtolower(get_called_class())) . "PropMultipleTable";
+        if (class_exists($propertyMultipleClassName))
         {
             $obCache = new \CPHPCache;
-            $cacheId = get_called_class() . " ::" . __METHOD__;
+            $cacheId = md5(get_called_class() . " ::" . __METHOD__);
             if ($obCache->InitCache(36000, $cacheId, "/"))
             {
                 $vars = $obCache->GetVars();
@@ -152,7 +154,7 @@ abstract class IblockElement extends DataManager
                     }
 
                     $arProperties["PROPERTY_MULTIPLE_" . $arProperty["CODE"]] = array(
-                        "data_type" => $classPropertyMultipleName,
+                        "data_type" => $propertyMultipleClassName,
                         "reference" => array(
                             "=this.ID" => "ref.IBLOCK_ELEMENT_ID",
                             "ref.IBLOCK_PROPERTY_ID" => new SqlExpression('?i', $arProperty["ID"])
@@ -163,17 +165,20 @@ abstract class IblockElement extends DataManager
                 $obCache->EndDataCache(array("arProperties" => $arProperties));
             }
         }
+
         return $arProperties;
     }
 
     public static function getList(array $parameters = array())
     {
         $parameters["filter"]["IBLOCK_ID"] = static::getIblockId();
+
         return parent::getList($parameters);
     }
 
     /**
      * Вернет значение value у множественного свойства
+     *
      * @param $id - id значения свойства
      * @param $propertyCode - символьный код свойства
      *
@@ -183,18 +188,20 @@ abstract class IblockElement extends DataManager
     public static function getEnumValueById($id, $propertyCode)
     {
         $arProperty = self::getEnums();
-        foreach($arProperty[static::getIblockId()][$propertyCode] as $xmlId => $arEnumValue)
+        foreach ($arProperty[static::getIblockId()][$propertyCode] as $xmlId => $arEnumValue)
         {
-            if($id == $arEnumValue["ID"])
+            if ($id == $arEnumValue["ID"])
             {
                 return $arEnumValue["VALUE"];
             }
         }
+
         return null;
     }
 
     /**
      * Вернет id значения множественного свойтсва по XML_ID
+     *
      * @param $xml - xml_id значения свойства
      * @param $propertyCode - символьный код свойства
      *
@@ -204,11 +211,13 @@ abstract class IblockElement extends DataManager
     public static function getEnumIdByXmlId($xml, $propertyCode)
     {
         $arProperty = self::getEnums();
+
         return $arProperty[static::getIblockId()][$propertyCode][$xml]["ID"];
     }
 
     /**
      * Вернет xml_id множественного свойтсва по id
+     *
      * @param $id
      * @param $propertyCode
      *
@@ -218,9 +227,9 @@ abstract class IblockElement extends DataManager
     public static function getXmlIdById($id, $propertyCode)
     {
         $arProperty = self::getEnums();
-        foreach($arProperty[static::getIblockId()][$propertyCode] as $xmlId => $arEnumValue)
+        foreach ($arProperty[static::getIblockId()][$propertyCode] as $xmlId => $arEnumValue)
         {
-            if($id == $arEnumValue["ID"])
+            if ($id == $arEnumValue["ID"])
             {
                 return $xmlId;
             }
@@ -241,22 +250,18 @@ abstract class IblockElement extends DataManager
             if (!$arData = $oCache->GetVars())
             {
                 \Bitrix\Main\Loader::includeModule("iblock");
-                $oProperties = \CIBlockProperty::getList(
-                    array("ID" => "ASC"),
+                $oProperties = \CIBlockProperty::getList(array("ID" => "ASC"),
                     array(
                         "ACTIVE" => "Y",
                         "PROPERTY_TYPE" => "L"
-                    )
-                );
+                    ));
                 $arProperty2IblockID = array();
                 while ($arProperty = $oProperties->Fetch())
                 {
                     self::$arEnums[$arProperty["IBLOCK_ID"]][$arProperty["CODE"]] = array();
                     $arProperty2IblockID[$arProperty["ID"]] = $arProperty["IBLOCK_ID"];
                 }
-                $oEnumProperties = \CIBlockPropertyEnum::getList(
-                    array("ID" => "ASC")
-                );
+                $oEnumProperties = \CIBlockPropertyEnum::getList(array("ID" => "ASC"));
                 while ($arEnumProperty = $oEnumProperties->Fetch())
                 {
                     self::$arEnums[$arProperty2IblockID[$arEnumProperty["PROPERTY_ID"]]][$arEnumProperty["PROPERTY_CODE"]][$arEnumProperty["XML_ID"]] = array(
@@ -274,10 +279,12 @@ abstract class IblockElement extends DataManager
                 self::$arEnums = $arData["arProperties"];
             }
         }
+
         return self::$arEnums;
     }
 
-    protected static function getProperties() {
+    protected static function getProperties()
+    {
         $obCache = new \CPHPCache;
         $cacheId = md5(get_called_class() . " ::" . __METHOD__);
         self::$arProperties = array();
@@ -292,10 +299,8 @@ abstract class IblockElement extends DataManager
             $arFilter = array(
                 "IBLOCK_ID" => static::getIblockId(),
             );
-            $rsProperty = \CIBlockProperty::GetList(
-                array(),
-                $arFilter
-            );
+            $rsProperty = \CIBlockProperty::GetList(array(),
+                $arFilter);
             while ($arProperty = $rsProperty->Fetch())
             {
                 if (empty($arProperty["CODE"]))
@@ -307,32 +312,41 @@ abstract class IblockElement extends DataManager
 
             $obCache->EndDataCache(array("arProperties" => self::$arProperties));
         }
+
         return self::$arProperties;
     }
 
     /**
      * Вернет символьный код свойства по id
+     *
      * @param $id - id свойства
      *
      * @return null|string
      */
-    public static function getPropertyCodeById($id) {
-        foreach(static::getProperties() as $code => $arProperty) {
-            if($arProperty["ID"] == $id) {
+    public static function getPropertyCodeById($id)
+    {
+        foreach (static::getProperties() as $code => $arProperty)
+        {
+            if ($arProperty["ID"] == $id)
+            {
                 return $code;
             }
         }
+
         return null;
     }
 
     /**
      * Вернет id свойства по его символьному коду
+     *
      * @param $code - символьный код свойства
      *
      * @return null|int
      */
-    public static function getPropertyIdByCode($code) {
+    public static function getPropertyIdByCode($code)
+    {
         $arProperty = static::getProperties();
+
         return $arProperty[$code]["ID"];
     }
 
@@ -350,35 +364,56 @@ abstract class IblockElement extends DataManager
     {
         $arMap = array();
         $obCache = new \CPHPCache;
-        $cacheId = md5(get_called_class() . " ::" . __METHOD__);
+        $currentAdminPage = ((defined("ADMIN_SECTION") && ADMIN_SECTION===true) || !defined("BX_STARTED"));
+        $cacheId = md5(get_called_class() . " ::" . __METHOD__ . $currentAdminPage);
 
         if ($obCache->InitCache(36000, $cacheId, "/"))
         {
             $arMap = $obCache->GetVars();
         }
-
         elseif (\Bitrix\Main\Loader::includeModule("iblock") && $obCache->StartDataCache())
         {
-            $obIblock = \Bitrix\Iblock\IblockTable::getList(array(
+            $obIblock = \Bitrix\Iblock\IblockSiteTable::getList(array(
                 "select" => array(
-                    "LIST_PAGE_URL",
-                    "DETAIL_PAGE_URL"
+                    "DETAIL_PAGE_URL" => "IBLOCK.DETAIL_PAGE_URL",
+                    "SITE_ID",
+                    "DIR" => "SITE.DIR",
+                    "SERVER_NAME" => "SITE.DIR",
                 ),
                 "filter" => array(
-                    "ID" => static::getIblockId()
-                )
+                    "IBLOCK_ID" => static::getIblockId()
+                ),
+                "limit" => 1
             ));
 
-            if($arIblock = $obIblock->fetch())
+            if ($arIblock = $obIblock->fetch())
             {
-                $templateUrl = $arIblock["LIST_PAGE_URL"] . $arIblock["DETAIL_PAGE_URL"];
+                $templateUrl = $arIblock["DETAIL_PAGE_URL"];
+
+                if($currentAdminPage)
+                {
+                    $templateUrl = str_replace(
+                        array("#SITE_DIR#", "#SERVER_NAME#"),
+                        array($arIblock["DIR"], $arIblock["SERVER_NAME"]),
+                        $templateUrl
+                    );
+                }
+                else
+                {
+                    $templateUrl = str_replace(
+                        array("#SITE_DIR#", "#SERVER_NAME#"),
+                        array(SITE_DIR, SITE_SERVER_NAME),
+                        $templateUrl
+                    );
+                }
+
                 $expressionFields = array();
                 preg_match_all('/#([^#]+)#/ui', $templateUrl, $match);
                 if (!empty($match[1]))
                 {
-                    foreach($match[1] as $kid => $fieldName)
+                    foreach ($match[1] as $kid => $fieldName)
                     {
-                        if(array_key_exists($fieldName, $modelMap))
+                        if (array_key_exists($fieldName, $modelMap))
                         {
                             $templateUrl = str_replace($match[0][$kid], "', %s,'", $templateUrl);
                             $expressionFields[] = $fieldName;
@@ -394,6 +429,7 @@ abstract class IblockElement extends DataManager
             }
             $obCache->EndDataCache($arMap);
         }
+
         return $arMap;
     }
 }
