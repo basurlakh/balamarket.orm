@@ -20,6 +20,8 @@
     <Сущьность>PropMultipleTable
 
 Все 4 класса обязательно должны лежать в одном `namespace`.
+Еще одно обязательное условие, свойства инфоблока должны находиться в отдельной таблице.
+http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
 
 ### Класс `NewsTable` инфоблока наследуем от `Balamarket\Orm\Entity\IblockElement`
 
@@ -138,20 +140,20 @@
             "select" => array(
                 "ID",
                 "NAME",
-                "TAGS"
+                "PHONES"
             ),
             "runtime" => array(
-                "TAGS" => array(
+                "PHONES" => array(
                     "data_type" => "string",
                     "expression" => array(
                         "GROUP_CONCAT(%s)",
-                        "PROPERTY_MULTIPLE_TAGS.VALUE"
+                        "PROPERTY_MULTIPLE_PHONE.VALUE"
                     )
                 )
             ),
             "filter" => array(
                 "=ACTIVE" => "Y",
-                "!PROPERTY_MULTIPLE_TAGS.VALUE" => false
+                "!PROPERTY_MULTIPLE_PHONE.VALUE" => false
             ),
         )
     );

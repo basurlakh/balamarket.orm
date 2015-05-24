@@ -76,7 +76,7 @@ class IblockSectionTable extends \Bitrix\Iblock\SectionTable
 
             if ($arIblock = $obIblock->fetch())
             {
-                $templateUrl = $arIblock["LIST_PAGE_URL"] . $arIblock["SECTION_PAGE_URL"];
+                $templateUrl = $arIblock["SECTION_PAGE_URL"];
                 $expressionFields = array();
                 preg_match_all('/#([^#]+)#/ui', $templateUrl, $match);
                 if (!empty($match[1]))

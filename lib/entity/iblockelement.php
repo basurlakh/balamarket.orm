@@ -39,71 +39,127 @@ abstract class IblockElement extends DataManager
 
     public static function getMap()
     {
+
         $arMap = array(
             'ID' => array(
                 'data_type' => 'integer',
                 'primary' => true,
                 'autocomplete' => true,
             ),
-            'NAME' => array(
-                'data_type' => 'string'
+            'TIMESTAMP_X' => array(
+                'data_type' => 'datetime',
+            ),
+            'MODIFIED_BY' => array(
+                'data_type' => 'integer',
+            ),
+            'DATE_CREATE' => array(
+                'data_type' => 'datetime',
+            ),
+            'CREATED_BY' => array(
+                'data_type' => 'integer',
             ),
             'IBLOCK_ID' => array(
-                'data_type' => 'integer'
+                'data_type' => 'integer',
+                'required' => true,
             ),
-            'IBLOCK' => array(
-                'data_type' => '\Bitrix\Iblock\Iblock',
-                'reference' => array('=this.IBLOCK_ID' => 'ref.ID')
-            ),
-            "TIMESTAMP_X" => array(
-                "data_type" => "datetime"
-            ),
-            "DATE_CREATE" => array(
-                "data_type" => "datetime"
+            'IBLOCK_SECTION_ID' => array(
+                'data_type' => 'integer',
             ),
             'ACTIVE' => array(
                 'data_type' => 'boolean',
-                'values' => array('N', 'Y')
+                'values' => array('N', 'Y'),
             ),
-            "ACTIVE_FROM" => array(
-                "data_type" => "datetime"
+            'ACTIVE_FROM' => array(
+                'data_type' => 'datetime',
             ),
-            "ACTIVE_TO" => array(
-                "data_type" => "datetime"
+            'ACTIVE_TO' => array(
+                'data_type' => 'datetime',
             ),
-            "CODE" => array(
-                "data_type" => "string"
+            'SORT' => array(
+                'data_type' => 'integer',
             ),
-            "PREVIEW_TEXT" => array(
-                "data_type" => "string"
+            'NAME' => array(
+                'data_type' => 'string',
+                'required' => true,
             ),
-            "DETAIL_TEXT" => array(
-                "data_type" => "string"
+            'PREVIEW_PICTURE' => array(
+                'data_type' => 'integer',
             ),
-            "SORT" => array(
-                "data_type" => "integer"
+            'PREVIEW_TEXT' => array(
+                'data_type' => 'text',
             ),
-            "IBLOCK_SECTION_ID" => array(
-                "data_type" => "integer"
+            'PREVIEW_TEXT_TYPE' => array(
+                'data_type' => 'enum',
+                'values' => array('text', 'html'),
             ),
-            "DETAIL_PICTURE" => array(
-                "data_type" => "integer"
+            'DETAIL_PICTURE' => array(
+                'data_type' => 'integer',
             ),
-            "PREVIEW_PICTURE" => array(
-                "data_type" => "integer"
+            'DETAIL_TEXT' => array(
+                'data_type' => 'text',
             ),
-            "XML_ID" => array(
-                "data_type" => "string"
+            'DETAIL_TEXT_TYPE' => array(
+                'data_type' => 'enum',
+                'values' => array('text', 'html'),
             ),
-            "SHOW_COUNTER" => array(
-                "data_type" => "integer"
+            'SEARCHABLE_CONTENT' => array(
+                'data_type' => 'text',
             ),
-            "MODIFIED_BY" => array(
-                "data_type" => "integer"
+            'WF_STATUS_ID' => array(
+                'data_type' => 'integer',
             ),
-            "CREATED_BY" => array(
-                "data_type" => "integer"
-            )
+            'WF_PARENT_ELEMENT_ID' => array(
+                'data_type' => 'integer',
+            ),
+            'WF_NEW' => array(
+                'data_type' => 'string',
+            ),
+            'WF_LOCKED_BY' => array(
+                'data_type' => 'integer',
+            ),
+            'WF_DATE_LOCK' => array(
+                'data_type' => 'datetime',
+            ),
+            'WF_COMMENTS' => array(
+                'data_type' => 'text',
+            ),
+            'IN_SECTIONS' => array(
+                'data_type' => 'boolean',
+                'values' => array('N', 'Y'),
+            ),
+            'XML_ID' => array(
+                'data_type' => 'string',
+            ),
+            'CODE' => array(
+                'data_type' => 'string',
+            ),
+            'ELEMENT_CODE' => array(
+                'data_type' => 'string',
+                'expression' => array('%s', 'CODE')
+            ),
+            'TAGS' => array(
+                'data_type' => 'string',
+            ),
+            'TMP_ID' => array(
+                'data_type' => 'string',
+            ),
+            'WF_LAST_HISTORY_ID' => array(
+                'data_type' => 'integer',
+            ),
+            'SHOW_COUNTER' => array(
+                'data_type' => 'integer',
+            ),
+            'SHOW_COUNTER_START' => array(
+                'data_type' => 'datetime',
+            ),
+            'IBLOCK' => array(
+                'data_type' => '\Bitrix\Iblock\Iblock',
+                'reference' => array('=this.IBLOCK_ID' => 'ref.ID'),
+            ),
+            'WF_PARENT_ELEMENT' => array(
+                'data_type' => get_called_class(),
+                'reference' => array('=this.WF_PARENT_ELEMENT_ID' => 'ref.ID'),
+            ),
         );
 
         $propertySimpleClassName = str_replace("table", "", strtolower(get_called_class())) . "PropSimpleTable";
@@ -114,6 +170,27 @@ abstract class IblockElement extends DataManager
                 "reference" => array(
                     "=this.ID" => "ref.IBLOCK_ELEMENT_ID"
                 )
+            );
+        }
+
+        $sectionClassName = str_replace("table", "", strtolower(get_called_class())) . "SectionTable";
+        if (class_exists($sectionClassName))
+        {
+            $arMap["IBLOCK_SECTION"] = array(
+                "data_type" => $sectionClassName,
+                "reference" => array(
+                    "=this.IBLOCK_SECTION_ID" => "ref.ID"
+                )
+            );
+
+            $arMap["SECTION_CODE"] = array(
+                "data_type" => "string",
+                "expression" => array("%s", "IBLOCK_SECTION.CODE")
+            );
+
+            $arMap["SECTION_ID"] = array(
+                "data_type" => "string",
+                "expression" => array("%s", "IBLOCK_SECTION_ID")
             );
         }
 
@@ -243,7 +320,7 @@ abstract class IblockElement extends DataManager
         if (!self::$arEnums)
         {
             self::$arEnums = array();
-            $sCacheId = __CLASS__ . "::" . __FUNCTION__;
+            $sCacheId = md5(__CLASS__ . "::" . __FUNCTION__);
 
             $oCache = new \CPHPCache;
             $oCache->InitCache(36000, $sCacheId, "/");
@@ -365,7 +442,7 @@ abstract class IblockElement extends DataManager
         $arMap = array();
         $obCache = new \CPHPCache;
         $currentAdminPage = ((defined("ADMIN_SECTION") && ADMIN_SECTION===true) || !defined("BX_STARTED"));
-        $cacheId = md5(get_called_class() . " ::" . __METHOD__ . $currentAdminPage);
+        $cacheId = md5(get_called_class() . " ::" . __METHOD__ . $currentAdminPage . SITE_ID);
 
         if ($obCache->InitCache(36000, $cacheId, "/"))
         {
