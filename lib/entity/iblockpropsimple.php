@@ -10,6 +10,8 @@ namespace Balamarket\Orm\Entity;
 
 
 use Bitrix\Main\Entity\DataManager;
+use Bitrix\Main\Loader;
+use Bitrix\Main\NotImplementedException;
 
 abstract class IblockPropSimple extends DataManager
 {
@@ -20,7 +22,7 @@ abstract class IblockPropSimple extends DataManager
      */
     public static function getIblockId()
     {
-        throw new \Bitrix\Main\NotImplementedException("Method getIblockId() must be implemented by successor.");
+        throw new NotImplementedException("Method getIblockId() must be implemented by successor.");
     }
 
     public static function getTableName()
@@ -46,6 +48,7 @@ abstract class IblockPropSimple extends DataManager
     }
     private static function getPropertyMap()
     {
+        global $CACHE_MANAGER;
         $obCache = new \CPHPCache;
         $cacheId = md5(get_called_class() . " ::" . __METHOD__);
         $arProperties = array();
@@ -55,7 +58,7 @@ abstract class IblockPropSimple extends DataManager
 
             $arProperties = $vars["arProperties"];
         }
-        elseif (\Bitrix\Main\Loader::includeModule("iblock") && $obCache->StartDataCache())
+        elseif (Loader::includeModule("iblock") && $obCache->StartDataCache())
         {
             $arFilter = array(
                 "IBLOCK_ID" => static::getIblockId(),
@@ -115,6 +118,10 @@ abstract class IblockPropSimple extends DataManager
                     "data_type" => $arColumn["data_type"]
                 );
             }
+
+            $CACHE_MANAGER->StartTagCache("/");
+            $CACHE_MANAGER->RegisterTag("property_iblock_id_" . static::getIblockId());
+            $CACHE_MANAGER->EndTagCache();
 
             $obCache->EndDataCache(array("arProperties" => $arProperties));
         }

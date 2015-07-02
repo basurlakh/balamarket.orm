@@ -18,6 +18,7 @@
     <Сущьность>Table
     <Сущьность>PropSimpleTable
     <Сущьность>PropMultipleTable
+    <Сущьность>SectionTable
 
 Все 4 класса обязательно должны лежать в одном `namespace`.
 Еще одно обязательное условие, свойства инфоблока должны находиться в отдельной таблице.
@@ -33,9 +34,9 @@ http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
 
     class NewsTable extends \Balamarket\Orm\Entity\IblockElement
     {
-        public static function getIblockId()
+        public static function getIblockCode()
         {
-            return 1;
+            return "news";
         }
     }
 
@@ -97,6 +98,10 @@ http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
 
     DETAIL_PAGE_URL - формируется из настроек инфоблока
 
+    // Если есть класс с разделами то доступны ссылки на него
+    SECTION - \Balamarket\Orm\Entity\IblockSectionTable
+    SECTIONS - Множественная привязка к разделам \Balamarket\Orm\Entity\IblockSectionTable
+
 #### `\Balamarket\Orm\Entity\IblockPropSimple`
 
     IBLOCK_ELEMENT - Доступ к \Balamarket\Orm\Entity\IblockElement
@@ -104,6 +109,7 @@ http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
 #### `\Balamarket\Orm\Entity\IblockSectionTable`
 
     DETAIL_PAGE_URL - формируется из настроек инфоблока
+    PARENT_SECTION - Родительскй раздел \Balamarket\Orm\Entity\IblockSectionTable
 
 Для доступа к свойствам используются резервированные названия полей:
 

@@ -36,11 +36,17 @@ Class balamarket_orm extends CModule
 
 	function InstallEvents()
 	{
+        RegisterModuleDependences('iblock', 'OnAfterIBlockPropertyAdd', self::MODULE_ID, 'Balamarket\Orm\EventHandler\Property', 'OnAfterIBlockPropertyAdd');
+        RegisterModuleDependences('iblock', 'OnAfterIBlockPropertyUpdate', self::MODULE_ID, 'Balamarket\Orm\EventHandler\Property', 'OnAfterIBlockPropertyUpdate');
+        RegisterModuleDependences('iblock', 'OnBeforeIBlockPropertyDelete', self::MODULE_ID, 'Balamarket\Orm\EventHandler\Property', 'OnBeforeIBlockPropertyDelete');
 		return true;
 	}
 
 	function UnInstallEvents()
 	{
+        UnRegisterModuleDependences('iblock', 'OnAfterIBlockPropertyAdd', self::MODULE_ID, 'Balamarket\Orm\EventHandler\Property', 'OnAfterIBlockPropertyAdd');
+        UnRegisterModuleDependences('iblock', 'OnAfterIBlockPropertyUpdate', self::MODULE_ID, 'Balamarket\Orm\EventHandler\Property', 'OnAfterIBlockPropertyUpdate');
+        UnRegisterModuleDependences('iblock', 'OnBeforeIBlockPropertyDelete', self::MODULE_ID, 'Balamarket\Orm\EventHandler\Property', 'OnBeforeIBlockPropertyDelete');
 		return true;
 	}
 
@@ -59,6 +65,7 @@ Class balamarket_orm extends CModule
 		global $APPLICATION;
 		$this->InstallFiles();
 		$this->InstallDB();
+        $this->InstallEvents();
 		RegisterModule(self::MODULE_ID);
 	}
 
@@ -68,5 +75,6 @@ Class balamarket_orm extends CModule
 		UnRegisterModule(self::MODULE_ID);
 		$this->UnInstallDB();
 		$this->UnInstallFiles();
+        $this->UnInstallEvents();
 	}
 }
