@@ -8,9 +8,11 @@
 
 namespace Balamarket\Orm\Entity;
 
-\Bitrix\Main\Loader::includeModule("iblock");
+use Bitrix\Iblock\IblockTable;
+use Bitrix\Iblock\SectionTable;
+use Bitrix\Main\NotImplementedException;
 
-class IblockSectionTable extends \Bitrix\Iblock\SectionTable
+class IblockSectionTable extends SectionTable
 {
     /**
      * @abstract
@@ -19,7 +21,7 @@ class IblockSectionTable extends \Bitrix\Iblock\SectionTable
      */
     public static function getIblockId()
     {
-        throw new \Bitrix\Main\NotImplementedException("Method getIblockId() must be implemented by successor.");
+        throw new NotImplementedException("Method getIblockId() must be implemented by successor.");
     }
 
     public static function getList(array $parameters = array())
@@ -35,6 +37,11 @@ class IblockSectionTable extends \Bitrix\Iblock\SectionTable
     public static function getMap()
     {
         $arMap = parent::getMap();
+        $arMap['PARENT_SECTION'] = array(
+            'data_type' => get_called_class(),
+            'reference' => array('=this.IBLOCK_SECTION_ID' => 'ref.ID'),
+        );
+
         $arMap = array_merge($arMap, static::getUrlTemplateMap($arMap));
 
         return $arMap;
@@ -53,6 +60,7 @@ class IblockSectionTable extends \Bitrix\Iblock\SectionTable
      */
     private static function getUrlTemplateMap(array $modelMap = array())
     {
+        global $CACHE_MANAGER;
         $arMap = array();
         $obCache = new \CPHPCache;
         $cacheId = md5(get_called_class() . " ::" . __METHOD__);
@@ -62,9 +70,9 @@ class IblockSectionTable extends \Bitrix\Iblock\SectionTable
             $arMap = $obCache->GetVars();
         }
 
-        elseif (\Bitrix\Main\Loader::includeModule("iblock") && $obCache->StartDataCache())
+        elseif ($obCache->StartDataCache())
         {
-            $obIblock = \Bitrix\Iblock\IblockTable::getList(array(
+            $obIblock = IblockTable::getList(array(
                 "select" => array(
                     "LIST_PAGE_URL",
                     "SECTION_PAGE_URL"
@@ -97,6 +105,10 @@ class IblockSectionTable extends \Bitrix\Iblock\SectionTable
                     "expression" => $expressionFields
                 );
             }
+
+            $CACHE_MANAGER->StartTagCache("/");
+            $CACHE_MANAGER->RegisterTag("iblock_id_" . static::getIblockId());
+            $CACHE_MANAGER->EndTagCache();
             $obCache->EndDataCache($arMap);
         }
 

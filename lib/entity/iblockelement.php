@@ -8,22 +8,70 @@
 
 namespace Balamarket\Orm\Entity;
 
+use Bitrix\Iblock\IblockSiteTable;
+use Bitrix\Iblock\IblockTable;
+use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\DB\SqlExpression;
-use \Bitrix\Main\Entity\DataManager;
+use Bitrix\Main\Entity\DataManager;
+use Bitrix\Main\NotImplementedException;
 
 abstract class IblockElement extends DataManager
 {
     private static $arEnums = array();
-    private static $arProperties;
 
     /**
      * @abstract
      * @return int
+     * @throws ArgumentNullException
      * @throws \Bitrix\Main\NotImplementedException
      */
     public static function getIblockId()
     {
-        throw new \Bitrix\Main\NotImplementedException("Method getIblockId() must be implemented by successor.");
+        global $CACHE_MANAGER;
+        if (strlen(static::getIblockCode()) <= 0)
+        {
+            throw new ArgumentNullException("Метод getIblockCode() вернул пустую строку.");
+        }
+
+        $arIblock = array();
+        $obCache = new \CPHPCache;
+        $cacheId = md5(get_called_class() . " ::" . __FUNCTION__);
+        if ($obCache->InitCache(36000, $cacheId, "/"))
+        {
+            $vars = $obCache->GetVars();
+            $arIblock = $vars["arIblock"];
+        }
+        elseif ($obCache->StartDataCache())
+        {
+            if ($arIblock = IblockTable::getList(array(
+                "select" => array("ID"),
+                "filter" => array("=CODE" => static::getIblockCode()),
+                'limit' => 1
+            ))->fetch())
+            {
+                $CACHE_MANAGER->StartTagCache("/");
+                $CACHE_MANAGER->RegisterTag("iblock_id_" . $arIblock["ID"]);
+                $CACHE_MANAGER->EndTagCache();
+
+                $obCache->EndDataCache(array("arIblock" => $arIblock));
+            }
+            else
+            {
+                $obCache->AbortDataCache();
+            }
+        }
+
+        return $arIblock["ID"];
+    }
+
+    /**
+     * @abstract
+     * @return string
+     * @throws \Bitrix\Main\NotImplementedException
+     */
+    public static function getIblockCode()
+    {
+        throw new NotImplementedException("Method getIblockCode() must be implemented by successor.");
     }
 
     /**
@@ -117,6 +165,31 @@ abstract class IblockElement extends DataManager
             );
         }
 
+        $sectionClassName = str_replace("table", "", strtolower(get_called_class())) . "SectionTable";
+        if (class_exists($sectionClassName))
+        {
+            $arMap["SECTION"] = array(
+                "data_type" => $sectionClassName,
+                "reference" => array(
+                    "=this.IBLOCK_SECTION_ID" => "ref.ID"
+                )
+            );
+
+            $arMap["SECTION_ELEMENT"] = array(
+                "data_type" => '\Balamarket\Orm\Entity\SectionElementTable',
+                "reference" => array(
+                    "=this.ID" => "ref.IBLOCK_ELEMENT_ID"
+                )
+            );
+
+            $arMap["SECTIONS"] = array(
+                "data_type" => $sectionClassName,
+                "reference" => array(
+                    "=this.SECTION_ELEMENT.IBLOCK_SECTION_ID" => "ref.ID"
+                )
+            );
+        }
+
         $arMap = array_merge($arMap, static::getPropertyMultipleMap());
         $arMap = array_merge($arMap, static::getUrlTemplateMap($arMap));
 
@@ -125,6 +198,7 @@ abstract class IblockElement extends DataManager
 
     protected static function getPropertyMultipleMap()
     {
+        global $CACHE_MANAGER;
         $arProperties = array();
         $propertyMultipleClassName = str_replace("table", "", strtolower(get_called_class())) . "PropMultipleTable";
         if (class_exists($propertyMultipleClassName))
@@ -136,7 +210,7 @@ abstract class IblockElement extends DataManager
                 $vars = $obCache->GetVars();
                 $arProperties = $vars["arProperties"];
             }
-            elseif (\Bitrix\Main\Loader::includeModule("iblock") && $obCache->StartDataCache())
+            elseif ($obCache->StartDataCache())
             {
                 $arFilter = array(
                     "IBLOCK_ID" => static::getIblockId(),
@@ -162,6 +236,9 @@ abstract class IblockElement extends DataManager
                     );
                 }
 
+                $CACHE_MANAGER->StartTagCache("/");
+                $CACHE_MANAGER->RegisterTag("property_iblock_id_" . static::getIblockId());
+                $CACHE_MANAGER->EndTagCache();
                 $obCache->EndDataCache(array("arProperties" => $arProperties));
             }
         }
@@ -249,7 +326,6 @@ abstract class IblockElement extends DataManager
             $oCache->InitCache(36000, $sCacheId, "/");
             if (!$arData = $oCache->GetVars())
             {
-                \Bitrix\Main\Loader::includeModule("iblock");
                 $oProperties = \CIBlockProperty::getList(array("ID" => "ASC"),
                     array(
                         "ACTIVE" => "Y",
@@ -285,16 +361,16 @@ abstract class IblockElement extends DataManager
 
     protected static function getProperties()
     {
+        global $CACHE_MANAGER;
         $obCache = new \CPHPCache;
         $cacheId = md5(get_called_class() . " ::" . __METHOD__);
-        self::$arProperties = array();
+        $arProperties = array();
         if ($obCache->InitCache(36000, $cacheId, "/"))
         {
             $vars = $obCache->GetVars();
-
-            self::$arProperties = $vars["arProperties"];
+            $arProperties = $vars["arProperties"];
         }
-        elseif (\Bitrix\Main\Loader::includeModule("iblock") && $obCache->StartDataCache())
+        elseif ($obCache->StartDataCache())
         {
             $arFilter = array(
                 "IBLOCK_ID" => static::getIblockId(),
@@ -307,13 +383,16 @@ abstract class IblockElement extends DataManager
                 {
                     continue;
                 }
-                self::$arProperties[$arProperty["CODE"]] = $arProperty;
+                $arProperties[$arProperty["CODE"]] = $arProperty;
             }
 
-            $obCache->EndDataCache(array("arProperties" => self::$arProperties));
+            $CACHE_MANAGER->StartTagCache("/");
+            $CACHE_MANAGER->RegisterTag("property_iblock_id_" . static::getIblockId());
+            $CACHE_MANAGER->EndTagCache();
+            $obCache->EndDataCache(array("arProperties" => $arProperties));
         }
 
-        return self::$arProperties;
+        return $arProperties;
     }
 
     /**
@@ -357,11 +436,11 @@ abstract class IblockElement extends DataManager
      *
      * @return array
      * @throws \Bitrix\Main\ArgumentException
-     * @throws \Bitrix\Main\LoaderException
      * @throws \Bitrix\Main\NotImplementedException
      */
     private static function getUrlTemplateMap(array $modelMap = array())
     {
+        global $CACHE_MANAGER;
         $arMap = array();
         $obCache = new \CPHPCache;
         $currentAdminPage = ((defined("ADMIN_SECTION") && ADMIN_SECTION===true) || !defined("BX_STARTED"));
@@ -371,9 +450,9 @@ abstract class IblockElement extends DataManager
         {
             $arMap = $obCache->GetVars();
         }
-        elseif (\Bitrix\Main\Loader::includeModule("iblock") && $obCache->StartDataCache())
+        elseif ($obCache->StartDataCache())
         {
-            $obIblock = \Bitrix\Iblock\IblockSiteTable::getList(array(
+            $obIblock = IblockSiteTable::getList(array(
                 "select" => array(
                     "DETAIL_PAGE_URL" => "IBLOCK.DETAIL_PAGE_URL",
                     "SITE_ID",
@@ -427,6 +506,11 @@ abstract class IblockElement extends DataManager
                     "expression" => $expressionFields
                 );
             }
+
+            $CACHE_MANAGER->StartTagCache("/");
+            $CACHE_MANAGER->RegisterTag("iblock_id_" . static::getIblockId());
+            $CACHE_MANAGER->EndTagCache();
+
             $obCache->EndDataCache($arMap);
         }
 
