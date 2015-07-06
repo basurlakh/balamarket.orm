@@ -13,6 +13,12 @@
                 newspropmultiple.php - Класс множественных свойств инфоблока
                 newssection.php - Класс разделов инфоблока
 
+В файле `include.php` вашего модуля подключим модуль `balamarket.orm`
+
+    use Bitrix\Main\Loader;
+    
+    Loader::includeModule("balamarket.orm");
+
 Для того, чтоб классы могли знать друг о друге используется правило наименования:
     
     <Сущьность>Table
@@ -28,9 +34,6 @@ http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
 
     <?php
     namespace <ваш модуль>\Content;
-    use Bitrix\Main\Loader;
-    
-    Loader::includeModule("balamarket.orm");
 
     class NewsTable extends \Balamarket\Orm\Entity\IblockElement
     {
@@ -45,9 +48,6 @@ http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
 
     <?php
     namespace <ваш модуль>\Content;
-    use Bitrix\Main\Loader;
-    
-    Loader::includeModule("balamarket.orm");
 
     class NewsPropSimpleTable extends \Balamarket\Orm\Entity\IblockPropSimple
     {
@@ -61,9 +61,6 @@ http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
 
     <?php
     namespace <ваш модуль>\Content;
-    use Bitrix\Main\Loader;
-    
-    Loader::includeModule("balamarket.orm");
 
     class NewsPropMultipleTable extends \Balamarket\Orm\Entity\IblockPropSimple
     {
@@ -77,9 +74,6 @@ http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
 
     <?php
     namespace <ваш модуль>\Content;
-    use Bitrix\Main\Loader;
-    
-    Loader::includeModule("balamarket.orm");
 
     class NewsSectionTable extends \Balamarket\Orm\Entity\IblockSection
     {
