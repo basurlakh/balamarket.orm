@@ -73,7 +73,7 @@ http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
         }
     }
 
-### Класс `NewsSectionTable` разделов инфоблока наследуем от `Balamarket\Orm\Entity\IblockSectionTable`
+### Класс `NewsSectionTable` разделов инфоблока наследуем от `Balamarket\Orm\Entity\IblockSection`
 
     <?php
     namespace <ваш модуль>\Content;
@@ -81,7 +81,7 @@ http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
     
     Loader::includeModule("balamarket.orm");
 
-    class NewsSectionTable extends \Balamarket\Orm\Entity\IblockSectionTable
+    class NewsSectionTable extends \Balamarket\Orm\Entity\IblockSection
     {
         public static function getIblockId()
         {
@@ -99,17 +99,17 @@ http://dev.1c-bitrix.ru/learning/course/?COURSE_ID=43&LESSON_ID=2723
     DETAIL_PAGE_URL - формируется из настроек инфоблока
 
     // Если есть класс с разделами то доступны ссылки на него
-    SECTION - \Balamarket\Orm\Entity\IblockSectionTable
-    SECTIONS - Множественная привязка к разделам \Balamarket\Orm\Entity\IblockSectionTable
+    SECTION - \Balamarket\Orm\Entity\IblockSection
+    SECTIONS - Множественная привязка к разделам \Balamarket\Orm\Entity\IblockSection
 
 #### `\Balamarket\Orm\Entity\IblockPropSimple`
 
     IBLOCK_ELEMENT - Доступ к \Balamarket\Orm\Entity\IblockElement
 
-#### `\Balamarket\Orm\Entity\IblockSectionTable`
+#### `\Balamarket\Orm\Entity\IblockSection`
 
     DETAIL_PAGE_URL - формируется из настроек инфоблока
-    PARENT_SECTION - Родительскй раздел \Balamarket\Orm\Entity\IblockSectionTable
+    PARENT_SECTION - Родительскй раздел \Balamarket\Orm\Entity\IblockSection
 
 Для доступа к свойствам используются резервированные названия полей:
 

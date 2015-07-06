@@ -12,7 +12,7 @@ use Bitrix\Iblock\IblockTable;
 use Bitrix\Iblock\SectionTable;
 use Bitrix\Main\NotImplementedException;
 
-class IblockSectionTable extends SectionTable
+class IblockSection extends SectionTable
 {
     /**
      * @abstract
