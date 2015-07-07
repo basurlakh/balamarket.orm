@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Anton
+ * User: basurlakh@gmail.com
  * Date: 10.03.2015
  * Time: 18:33
  */
@@ -49,14 +49,11 @@ class IblockSection extends SectionTable
 
 
     /**
-     * Полуим expression для ссылки на детальную страницу
+     * Returns expression to refer to the detailed page
      *
-     * @param array $modelMap - текущий map
+     * @param array $modelMap - current map
      *
      * @return array
-     * @throws \Bitrix\Main\ArgumentException
-     * @throws \Bitrix\Main\LoaderException
-     * @throws \Bitrix\Main\NotImplementedException
      */
     private static function getUrlTemplateMap(array $modelMap = array())
     {

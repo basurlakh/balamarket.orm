@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Anton
+ * User: basurlakh@gmail.com
  * Date: 15.11.2014
  * Time: 16:19
  */
@@ -14,6 +14,7 @@ use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Entity\DataManager;
 use Bitrix\Main\NotImplementedException;
+use Bitrix\Main\SystemException;
 
 abstract class IblockElement extends DataManager
 {
@@ -22,15 +23,16 @@ abstract class IblockElement extends DataManager
     /**
      * @abstract
      * @return int
-     * @throws ArgumentNullException
-     * @throws \Bitrix\Main\NotImplementedException
+     * @throws NotImplementedException
+     * @throws SystemException
+     * @throws \Bitrix\Main\ArgumentException
      */
     public static function getIblockId()
     {
         global $CACHE_MANAGER;
         if (strlen(static::getIblockCode()) <= 0)
         {
-            throw new ArgumentNullException("Метод getIblockCode() вернул пустую строку.");
+            throw new SystemException("Method getIblockCode() returned an null or empty");
         }
 
         $arIblock = array();
@@ -84,10 +86,12 @@ abstract class IblockElement extends DataManager
         return 'b_iblock_element';
     }
 
-
+    /**
+     * Returns field model
+     * @return array
+     */
     public static function getMap()
     {
-
         $arMap = array(
             'ID' => array(
                 'data_type' => 'integer',
@@ -320,10 +324,10 @@ abstract class IblockElement extends DataManager
     }
 
     /**
-     * Вернет значение value у множественного свойства
+     * Returns value from multiple properties
      *
-     * @param $id - id значения свойства
-     * @param $propertyCode - символьный код свойства
+     * @param int $id - id value property
+     * @param string $propertyCode - Character property code
      *
      * @return mixed null|String
      * @throws \Bitrix\Main\NotImplementedException
@@ -343,13 +347,12 @@ abstract class IblockElement extends DataManager
     }
 
     /**
-     * Вернет id значения множественного свойтсва по XML_ID
+     * Returns id value from multiple properties by XML_ID value
      *
-     * @param $xml - xml_id значения свойства
-     * @param $propertyCode - символьный код свойства
+     * @param string|int $xml - xml_id property value
+     * @param string $propertyCode - Character property code
      *
-     * @return mixed
-     * @throws \Bitrix\Main\NotImplementedException
+     * @return null|int
      */
     public static function getEnumIdByXmlId($xml, $propertyCode)
     {
@@ -359,13 +362,12 @@ abstract class IblockElement extends DataManager
     }
 
     /**
-     * Вернет xml_id множественного свойтсва по id
+     * Returns xml_id value from multiple properties by id value
      *
      * @param $id
      * @param $propertyCode
      *
      * @return int|null|string
-     * @throws \Bitrix\Main\NotImplementedException
      */
     public static function getXmlIdById($id, $propertyCode)
     {
@@ -462,9 +464,9 @@ abstract class IblockElement extends DataManager
     }
 
     /**
-     * Вернет символьный код свойства по id
+     * Returns property code by id
      *
-     * @param $id - id свойства
+     * @param int $id - property id
      *
      * @return null|string
      */
@@ -482,9 +484,9 @@ abstract class IblockElement extends DataManager
     }
 
     /**
-     * Вернет id свойства по его символьному коду
+     * Returns property id by code
      *
-     * @param $code - символьный код свойства
+     * @param string $code - property code
      *
      * @return null|int
      */
@@ -496,13 +498,11 @@ abstract class IblockElement extends DataManager
     }
 
     /**
-     * Полуим expression для ссылки на детальную страницу
+     * Returns expression to refer to the detailed page
      *
-     * @param array $modelMap - текущий map
+     * @param array $modelMap - current map
      *
      * @return array
-     * @throws \Bitrix\Main\ArgumentException
-     * @throws \Bitrix\Main\NotImplementedException
      */
     private static function getUrlTemplateMap(array $modelMap = array())
     {

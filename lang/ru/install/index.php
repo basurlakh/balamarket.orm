@@ -1,6 +1,5 @@
 <?
-$MESS["balamarket.orm_MODULE_NAME"] = "РњРѕРґСѓР»СЊ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РёРЅС„РѕР±Р»РѕРєР°РјРё С‡РµСЂРµР· ORM";
-$MESS["balamarket.orm_MODULE_DESC"] = "";
-$MESS["balamarket.orm_PARTNER_NAME"] = "balamarket.com";
+$MESS["balamarket.orm_MODULE_NAME"] = "Модуль для работы с инфоблоками через ORM";
+$MESS["balamarket.orm_MODULE_DESC"] = "Модуль который позволяет работать с инфоблоками через d7 ORM";
+$MESS["balamarket.orm_PARTNER_NAME"] = "balamarket";
 $MESS["balamarket.orm_PARTNER_URI"] = "https://github.com/basurlakh/balamarket.orm";
-?>
