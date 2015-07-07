@@ -237,7 +237,7 @@ abstract class IblockElement extends DataManager
 
             $arMap["SECTION_CODE"] = array(
                 "data_type" => "string",
-                "expression" => array("%s", "IBLOCK_SECTION.CODE")
+                "expression" => array("%s", "SECTION.CODE")
             );
 
             $arMap["SECTION_ID"] = array(
